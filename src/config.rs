@@ -11,6 +11,7 @@ pub struct Config {
     pub addr: String,
     pub raw_data_path: Option<String>,
     pub export_limit: Option<usize>,
+    pub api_rate_limit: Option<usize>,
 }
 
 impl Config {

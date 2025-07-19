@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 文档 - 案例搜索系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .api-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .api-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .method.get { background-color: #28a745; }
+        .method.post { background-color: #007bff; }
+        .method.put { background-color: #ffc107; color: #333; }
+        .method.delete { background-color: #dc3545; }
+
+        .url {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: #495057;
+        }
+
+        .params {
+            margin: 15px 0;
+        }
+
+        .param {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .param-name {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .param-type {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .param-desc {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .example h4 {
+            color: #90cdf4;
+            margin-bottom: 10px;
+        }
+
+        .response {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .rate-limit {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .rate-limit h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .status-codes {
+            margin: 15px 0;
+        }
+
+        .status-code {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        .status-200 { background-color: #d4edda; color: #155724; }
+        .status-400 { background-color: #f8d7da; color: #721c24; }
+        .status-404 { background-color: #f8d7da; color: #721c24; }
+        .status-429 { background-color: #fff3cd; color: #856404; }
+        .status-500 { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>API 文档</h1>
+            <p>案例搜索系统 RESTful API 接口文档</p>
+        </div>
+
+        <div class="nav">
+            <a href="/">返回首页</a>
+            <a href="#search">搜索接口</a>
+            <a href="#case">案例详情</a>
+            <a href="#stats">统计信息</a>
+        </div>
+
+        <div class="rate-limit">
+            <h4>⚠️ 限流说明</h4>
+            <p>所有API接口都受到限流保护：<strong>每分钟最多100个请求</strong>。超过限制将返回429状态码。</p>
+        </div>
+
+        <div class="api-section" id="search">
+            <h2>搜索案例</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/search</span>
+            </div>
+            
+            <h3>请求参数</h3>
+            <div class="params">
+                <div class="param">
+                    <span class="param-name">q</span>
+                    <span class="param-type">string (可选)</span>
+                    <span class="param-desc">搜索关键词</span>
+                </div>
+                <div class="param">
+                    <span class="param-name">offset</span>
+                    <span class="param-type">number (可选)</span>
+                    <span class="param-desc">偏移量，默认0</span>
+                </div>
+                <div class="param">
+                    <span class="param-name">limit</span>
+                    <span class="param-type">number (可选)</span>
+                    <span class="param-desc">返回结果数量，默认20，最大100</span>
+                </div>
+            </div>
+
+            <h3>请求示例</h3>
+            <div class="example">
+                <h4>搜索包含"合同纠纷"的案例</h4>
+                <code>GET /api/search?q=合同纠纷&limit=10</code>
+            </div>
+
+            <h3>响应示例</h3>
+            <div class="response">
+                <pre><code>{
+  "total": 1250,
+  "offset": 0,
+  "limit": 10,
+  "results": [
+    {
+      "id": 12345,
+      "doc_id": "https://example.com/case/12345",
+      "case_id": "(2023)京01民终1234号",
+      "case_name": "张三与李四合同纠纷案",
+      "court": "北京市第一中级人民法院",
+      "case_type": "民事案件",
+      "procedure": "二审",
+      "judgment_date": "2023-12-01",
+      "public_date": "2023-12-15",
+      "parties": "张三;李四",
+      "cause": "合同纠纷",
+      "legal_basis": "《中华人民共和国民法典》第五百七十七条",
+      "full_text": "案件全文内容..."
+    }
+  ]
+}</code></pre>
+            </div>
+
+            <h3>状态码</h3>
+            <div class="status-codes">
+                <span class="status-code status-200">200 OK</span>
+                <span class="status-code status-400">400 Bad Request</span>
+                <span class="status-code status-429">429 Too Many Requests</span>
+                <span class="status-code status-500">500 Internal Server Error</span>
+            </div>
+        </div>
+
+        <div class="api-section" id="case">
+            <h2>获取案例详情</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/case/{id}</span>
+            </div>
+            
+            <h3>路径参数</h3>
+            <div class="params">
+                <div class="param">
+                    <span class="param-name">id</span>
+                    <span class="param-type">number (必需)</span>
+                    <span class="param-desc">案例ID</span>
+                </div>
+            </div>
+
+            <h3>请求示例</h3>
+            <div class="example">
+                <h4>获取ID为12345的案例详情</h4>
+                <code>GET /api/case/12345</code>
+            </div>
+
+            <h3>响应示例</h3>
+            <div class="response">
+                <pre><code>{
+  "id": 12345,
+  "doc_id": "https://example.com/case/12345",
+  "case_id": "(2023)京01民终1234号",
+  "case_name": "张三与李四合同纠纷案",
+  "court": "北京市第一中级人民法院",
+  "case_type": "民事案件",
+  "procedure": "二审",
+  "judgment_date": "2023-12-01",
+  "public_date": "2023-12-15",
+  "parties": "张三;李四",
+  "cause": "合同纠纷",
+  "legal_basis": "《中华人民共和国民法典》第五百七十七条",
+  "full_text": "案件全文内容..."
+}</code></pre>
+            </div>
+
+            <h3>状态码</h3>
+            <div class="status-codes">
+                <span class="status-code status-200">200 OK</span>
+                <span class="status-code status-404">404 Not Found</span>
+                <span class="status-code status-429">429 Too Many Requests</span>
+                <span class="status-code status-500">500 Internal Server Error</span>
+            </div>
+        </div>
+
+        <div class="api-section" id="stats">
+            <h2>获取系统统计信息</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/stats</span>
+            </div>
+            
+            <h3>请求示例</h3>
+            <div class="example">
+                <h4>获取系统统计信息</h4>
+                <code>GET /api/stats</code>
+            </div>
+
+            <h3>响应示例</h3>
+            <div class="response">
+                <pre><code>{
+  "total_cases": 125000,
+  "index_reader_count": 5,
+  "status": "ok"
+}</code></pre>
+            </div>
+
+            <h3>状态码</h3>
+            <div class="status-codes">
+                <span class="status-code status-200">200 OK</span>
+                <span class="status-code status-429">429 Too Many Requests</span>
+                <span class="status-code status-500">500 Internal Server Error</span>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>错误响应格式</h2>
+            <div class="response">
+                <pre><code>{
+  "error": "ERROR_CODE",
+  "message": "错误描述信息"
+}</code></pre>
+            </div>
+            
+            <h3>常见错误码</h3>
+            <div class="params">
+                <div class="param">
+                    <span class="param-name">NOT_FOUND</span>
+                    <span class="param-desc">请求的资源不存在</span>
+                </div>
+                <div class="param">
+                    <span class="param-name">RATE_LIMIT_EXCEEDED</span>
+                    <span class="param-desc">请求频率超过限制</span>
+                </div>
+                <div class="param">
+                    <span class="param-name">INVALID_PARAMETER</span>
+                    <span class="param-desc">请求参数无效</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -27,6 +27,10 @@ pub struct CasePage {
     case: Case,
 }
 
+#[derive(Template)]
+#[template(path = "api_docs.html")]
+pub struct ApiDocsPage;
+
 pub async fn case(State(state): State<AppState>, Path(id): Path<u32>) -> impl IntoResponse {
     info!("id: {}", id);
     if let Some(v) = state.db.get(id.to_be_bytes()).unwrap() {
@@ -198,6 +202,11 @@ pub async fn help() -> impl IntoResponse {
     ];
 
     (headers, include_bytes!("../static/help.txt").as_slice())
+}
+
+pub async fn api_docs() -> impl IntoResponse {
+    let page = ApiDocsPage {};
+    into_response(&page)
 }
 
 fn into_response<T: Template>(t: &T) -> Response<Body> {

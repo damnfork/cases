@@ -1,6 +1,8 @@
 use bincode::{Decode, Encode};
 pub use config::CONFIG;
-pub use controller::{case, help, logo, search, style};
+pub use controller::{case, help, logo, search, style, api_docs};
+pub use api::{api_search, api_case, api_stats};
+pub use middleware::rate_limit_middleware;
 use fjall::{KvSeparationOptions, PartitionCreateOptions, PartitionHandle};
 use scraper::Html;
 use serde::{Deserialize, Serialize};
@@ -11,6 +13,8 @@ pub use tantivy::Tan;
 mod config;
 mod controller;
 mod tantivy;
+mod api;
+mod middleware;
 
 #[derive(Clone)]
 pub struct AppState {
