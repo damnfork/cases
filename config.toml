@@ -5,7 +5,13 @@ addr = "127.0.0.1:8081"      # If allow LAN access, change it to "0.0.0.0:port".
 export_limit = 10000
 
 # API 配置
-api_rate_limit = 100         # 每分钟API请求限制数量
+api_rate_limit = 100         # 默认每分钟API请求限制数量（无token时使用）
+
+# API Token 配置
+[api_tokens]
+"demo-token-1" = { rate_limit = 1000, description = "高级用户token" }
+"demo-token-2" = { rate_limit = 500, description = "标准用户token" }
+"demo-token-3" = { rate_limit = 100, description = "基础用户token" }
 
 # The raw data path you downloaded from the torrent, and you must NOT unzip it.
 raw_data_path = "裁判文书全量数据（已完成）"

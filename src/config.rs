@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{fs::read_to_string, sync::LazyLock};
+use std::{collections::HashMap, fs::read_to_string, sync::LazyLock};
 
 pub static CONFIG: LazyLock<Config> = LazyLock::new(Config::load_config);
 
@@ -12,6 +12,13 @@ pub struct Config {
     pub raw_data_path: Option<String>,
     pub export_limit: Option<usize>,
     pub api_rate_limit: Option<usize>,
+    pub api_tokens: Option<HashMap<String, TokenConfig>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenConfig {
+    pub rate_limit: usize,
+    pub description: Option<String>,
 }
 
 impl Config {

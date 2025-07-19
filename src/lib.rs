@@ -1,5 +1,5 @@
 use bincode::{Decode, Encode};
-pub use config::CONFIG;
+pub use config::{CONFIG, TokenConfig};
 pub use controller::{case, help, logo, search, style, api_docs};
 pub use api::{api_search, api_case, api_stats};
 pub use middleware::rate_limit_middleware;
