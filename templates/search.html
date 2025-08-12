@@ -7,9 +7,58 @@
             http-equiv="Content-Security-Policy"
             content="default-src 'none'; img-src 'self'; script-src 'self' https://p.dd.kg; style-src 'self'; object-src 'none'; font-src 'none'; form-action 'self'; frame-src 'none'; media-src 'none'; manifest-src 'none'; worker-src 'none';"
         />
-        <title>裁判文书网</title>
+        {% match search %}
+        {% when Some with (query) %}
+        <title>{{ query }}的搜索结果 - 共{{ total }}个相关案例 - 裁判文书网</title>
+        <meta name="description" content="搜索"{{ query }}"相关的法律案例，找到{{ total }}个结果。包含最高法院、高级法院、中级法院等各级法院的判决书、裁定书等裁判文书。">
+        <meta name="keywords" content="{{ query }},判决书,裁定书,法律案例,裁判文书,{{ query }}案例">
+        {% when None %}
+        <title>裁判文书网 - 法律案例检索平台 - 判决书裁定书在线查询</title>
+        <meta name="description" content="专业的法律案例检索平台，提供全国各级法院判决书、裁定书在线查询服务。涵盖民事、刑事、行政等各类案件，助力法律研究和实务工作。">
+        <meta name="keywords" content="裁判文书,判决书,裁定书,法律案例,案例检索,法院判决,司法文书,法律查询">
+        {% endmatch %}
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        {% match search %}
+        {% when Some with (query) %}
+        <meta property="og:title" content="{{ query }}的搜索结果 - 裁判文书网">
+        <meta property="og:description" content="搜索"{{ query }}"相关的法律案例，找到{{ total }}个结果">
+        {% when None %}
+        <meta property="og:title" content="裁判文书网 - 法律案例检索平台">
+        <meta property="og:description" content="专业的法律案例检索平台，提供全国各级法院判决书、裁定书在线查询服务">
+        {% endmatch %}
+        <meta property="og:image" content="/logo.png">
+        
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary">
+        {% match search %}
+        {% when Some with (query) %}
+        <meta property="twitter:title" content="{{ query }}的搜索结果 - 裁判文书网">
+        <meta property="twitter:description" content="搜索"{{ query }}"相关的法律案例，找到{{ total }}个结果">
+        {% when None %}
+        <meta property="twitter:title" content="裁判文书网 - 法律案例检索平台">
+        <meta property="twitter:description" content="专业的法律案例检索平台，提供全国各级法院判决书、裁定书在线查询服务">
+        {% endmatch %}
+        <meta property="twitter:image" content="/logo.png">
+        
         <link rel="stylesheet" href="/style.css" />
         <script defer src="https://p.dd.kg/script.js" data-website-id="05e41b52-5b34-419b-9714-0bc8bf681f6b"></script>
+        
+        <!-- 结构化数据 -->
+        {% match search %}
+        {% when Some with (query) %}
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "SearchResultsPage",
+          "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": {{ total }}
+          }
+        }
+        </script>
+        {% when None %}{% endmatch %}
     </head>
     <body>
         <header class="search-header">
@@ -22,7 +71,7 @@
                             type="text"
                             id="search"
                             name="search"
-                            value="{{ search }}"
+                            value="{% match search %}{% when Some with (query) %}{{ query }}{% when None %}{% endmatch %}"
                         />
                         <button type="submit" class="search-button">🔍</button>
                     </div>
@@ -50,7 +99,7 @@
                         找到 {{ total }}，<a
                             class="noline"
                             title="最多导出10000条，调整offset参数可获得更多结果，offset=10000，即可获得第10000~20000条结果"
-                            href="/?search={{ search }}&offset={{ offset }}&export=true"
+                            href="/?{% match search %}{% when Some with (query) %}search={{ query }}&{% when None %}{% endmatch %}offset={{ offset }}&export=true"
                             >导出</a
                         >
                     </p>
@@ -59,28 +108,46 @@
         </header>
 
         <main class="search-results">
+            <section class="search-info">
+                <h1>{% match search %}{% when Some with (query) %}{{ query }}的搜索结果{% when None %}裁判文书网{% endmatch %}</h1>
+                {% match search %}{% when Some with (query) %}<p>找到 <strong>{{ total }}</strong> 个相关案例</p>{% when None %}{% endmatch %}
+            </section>
+            
             {% for (id, preview, case) in cases %}
-            <div class="search-result-text">
-                <a class="nounderline" href="/case/{{id}}" target="_blank">
-                    <h3 class="underlineonhover">{{ case.case_name }}</h3>
-                </a>
-                <p>
-                    {{ case.judgment_date }} - {{ case.case_type }} - {{
-                    case.procedure }}
-                </p>
-                <p>{{ preview }}</p>
-                <a class="nounderline" href="/case/{{id}}" target="_blank"
-                    >{{case.case_id}} - {{ case.court }}</a
-                >
-            </div>
+            <article class="search-result-text" itemscope itemtype="https://schema.org/LegalDocument">
+                <header>
+                    <h2 itemprop="name" class="underlineonhover">
+                        <a class="nounderline" href="/case/{{id}}" target="_blank">
+                            {{ case.case_name }}
+                        </a>
+                    </h2>
+                </header>
+                
+                <div class="case-meta">
+                    <time datetime="{{ case.judgment_date }}" itemprop="dateCreated">{{ case.judgment_date }}</time>
+                    <span itemprop="genre">{{ case.case_type }}</span>
+                    <span>{{ case.procedure }}</span>
+                </div>
+                
+                <p class="case-preview" itemprop="description">{{ preview }}</p>
+                
+                <footer class="case-footer">
+                    <a class="nounderline" href="/case/{{id}}" target="_blank">
+                        <span itemprop="identifier">{{case.case_id}}</span> - 
+                        <span itemprop="author" itemscope itemtype="https://schema.org/Organization">
+                            <span itemprop="name">{{ case.court }}</span>
+                        </span>
+                    </a>
+                </footer>
+            </article>
             {% endfor %}
         </main>
 
         <div class="pagination">
             {% if cases.len() >= 20 %} {% if offset >= 20 %}
-            <a href="/?search={{ search }}&offset={{ offset - 20 }}">上一页</a
+            <a href="/?{% match search %}{% when Some with (query) %}search={{ query }}&{% when None %}{% endmatch %}offset={{ offset - 20 }}">上一页</a
             >&nbsp;&nbsp;&nbsp;&nbsp; {% endif %}
-            <a href="/?search={{ search }}&offset={{ offset + 20 }}">下一页</a>
+            <a href="/?{% match search %}{% when Some with (query) %}search={{ query }}&{% when None %}{% endmatch %}offset={{ offset + 20 }}">下一页</a>
             {% endif %}
         </div>
         <footer>

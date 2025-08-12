@@ -52,7 +52,7 @@ pub struct QuerySearch {
 #[derive(Template)]
 #[template(path = "search.html")]
 pub struct SearchPage {
-    search: String,
+    search: Option<String>,
     offset: usize,
     total: usize,
     cases: Vec<(u32, String, Case)>,
@@ -159,7 +159,7 @@ pub async fn search(
     }
 
     let body = SearchPage {
-        search,
+        search: if search.is_empty() { None } else { Some(search) },
         offset,
         cases,
         total,
@@ -207,6 +207,60 @@ pub async fn help() -> impl IntoResponse {
 pub async fn api_docs() -> impl IntoResponse {
     let page = ApiDocsPage {};
     into_response(&page)
+}
+
+pub async fn robots_txt() -> impl IntoResponse {
+    let robots_content = r#"User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: /sitemap.xml
+"#;
+    
+    let headers = [
+        (header::CONTENT_TYPE, "text/plain; charset=utf-8"),
+        (
+            header::CACHE_CONTROL,
+            "public, max-age=86400",
+        ),
+    ];
+
+    (headers, robots_content)
+}
+
+pub async fn sitemap_xml(State(_state): State<AppState>) -> impl IntoResponse {
+    // 获取总案例数量（简化版本，实际可能需要更复杂的逻辑）
+    // let _total_cases = state.db.len().unwrap_or(0);
+    
+    let mut sitemap = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>/</loc>
+        <lastmod>2024-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>/docs</loc>
+        <lastmod>2024-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+"#);
+
+    // 注意：在实际应用中，你可能需要更高效的方式来生成sitemap
+    // 这里只是一个基础示例
+    sitemap.push_str("</urlset>");
+    
+    let headers = [
+        (header::CONTENT_TYPE, "application/xml; charset=utf-8"),
+        (
+            header::CACHE_CONTROL,
+            "public, max-age=3600",
+        ),
+    ];
+
+    (headers, sitemap)
 }
 
 fn into_response<T: Template>(t: &T) -> Response<Body> {

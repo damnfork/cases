@@ -1,5 +1,5 @@
 use axum::{Router, routing::get, middleware};
-use cases::{AppState, CONFIG, Tan, case, help, kv_sep_partition_option, logo, search, style, api_search, api_case, api_stats, api_docs, rate_limit_middleware};
+use cases::{AppState, CONFIG, Tan, case, help, kv_sep_partition_option, logo, search, style, api_search, api_case, api_stats, api_docs, robots_txt, sitemap_xml, rate_limit_middleware};
 use fjall::Config;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::net::TcpListener;
@@ -41,6 +41,8 @@ async fn main() {
         .route("/help.txt", get(help))
         .route("/logo.png", get(logo))
         .route("/docs", get(api_docs))
+        .route("/robots.txt", get(robots_txt))
+        .route("/sitemap.xml", get(sitemap_xml))
         .route("/api/search", get(api_search))
         .route("/api/case/{id}", get(api_case))
         .route("/api/stats", get(api_stats))

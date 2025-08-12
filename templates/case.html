@@ -7,29 +7,102 @@
             http-equiv="Content-Security-Policy"
             content="default-src 'none'; img-src 'self'; script-src 'self' https://p.dd.kg; style-src 'self'; object-src 'none'; font-src 'none'; form-action 'self'; frame-src 'none'; media-src 'none'; manifest-src 'none'; worker-src 'none';"
         />
-        <title>裁判文书网 - {{case.case_id}} - {{case.case_name}}</title>
+        <title>{{case.case_name}} - {{case.case_id}} - {{case.court}} - 裁判文书网</title>
+        <meta name="description" content="{{case.court}}于{{case.judgment_date}}审理的{{case.case_name}}案，案号{{case.case_id}}。案由：{{case.cause}}，审理程序：{{case.procedure}}。">
+        <meta name="keywords" content="{{case.case_name}},{{case.case_id}},{{case.court}},{{case.cause}},{{case.case_type}},判决书,裁判文书">
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="article">
+        <meta property="og:title" content="{{case.case_name}} - {{case.case_id}}">
+        <meta property="og:description" content="{{case.court}}于{{case.judgment_date}}审理的{{case.case_name}}案">
+        <meta property="og:image" content="/logo.png">
+        <meta property="article:published_time" content="{{case.public_date}}">
+        <meta property="article:author" content="{{case.court}}">
+        
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary">
+        <meta property="twitter:title" content="{{case.case_name}} - {{case.case_id}}">
+        <meta property="twitter:description" content="{{case.court}}于{{case.judgment_date}}审理的{{case.case_name}}案">
+        <meta property="twitter:image" content="/logo.png">
         <link rel="stylesheet" href="/style.css" />
         <script defer src="https://p.dd.kg/script.js" data-website-id="05e41b52-5b34-419b-9714-0bc8bf681f6b"></script>
+        
+        <!-- 结构化数据 -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "LegalDocument",
+          "name": "{{ case.case_name }}",
+          "identifier": "{{ case.case_id }}",
+          "datePublished": "{{ case.public_date }}",
+          "dateCreated": "{{ case.judgment_date }}",
+          "author": {
+            "@type": "Organization",
+            "name": "{{ case.court }}"
+          },
+          "about": "{{ case.cause }}",
+          "description": "{{ case.case_name }}案件详情",
+          "inLanguage": "zh-CN",
+          "genre": "{{ case.case_type }}",
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "法律从业者"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "裁判文书网"
+          }
+        }
+        </script>
     </head>
     <body>
         <main class="search-results">
-            <div class="search-result-text">
-                <h3 class="underlineonhover">{{ case.case_name }}</h3>
-                <p><b>裁判日期</b>：{{ case.judgment_date }}</p>
-                <p><b>发布日期</b>：{{ case.public_date }}</p>
-                <p><b>案号</b>：{{case.case_id}}</p>
-                <p><b>法院</b>：{{ case.court }}</p>
-                <p><b>案件类型</b>：{{ case.case_type }}</p>
-                <p><b>审理程序</b>：{{ case.procedure }}</p>
-                <p><b>当事人</b>：{{ case.parties }}</p>
-                <p><b>案由</b>：{{ case.cause }}</p>
-                <p><b>原始链接</b>：{{ case.doc_id }}</p>
-                <p><b>法律依据</b>：{{ case.legal_basis }}</p>
-                <p></p>
-                <p></p>
-                <p><b>全文</b>：</p>
-                <div class="full_text">{{ case.full_text }}</div>
-            </div>
+            <article class="search-result-text" itemscope itemtype="https://schema.org/LegalDocument">
+                <header>
+                    <h1 itemprop="name" class="underlineonhover">{{ case.case_name }}</h1>
+                </header>
+                
+                <section class="case-metadata">
+                    <dl>
+                        <dt>裁判日期</dt>
+                        <dd><time datetime="{{ case.judgment_date }}" itemprop="dateCreated">{{ case.judgment_date }}</time></dd>
+                        
+                        <dt>发布日期</dt>
+                        <dd><time datetime="{{ case.public_date }}" itemprop="datePublished">{{ case.public_date }}</time></dd>
+                        
+                        <dt>案号</dt>
+                        <dd itemprop="identifier">{{case.case_id}}</dd>
+                        
+                        <dt>法院</dt>
+                        <dd itemprop="author" itemscope itemtype="https://schema.org/Organization">
+                            <span itemprop="name">{{ case.court }}</span>
+                        </dd>
+                        
+                        <dt>案件类型</dt>
+                        <dd itemprop="genre">{{ case.case_type }}</dd>
+                        
+                        <dt>审理程序</dt>
+                        <dd>{{ case.procedure }}</dd>
+                        
+                        <dt>当事人</dt>
+                        <dd>{{ case.parties }}</dd>
+                        
+                        <dt>案由</dt>
+                        <dd itemprop="about">{{ case.cause }}</dd>
+                        
+                        <dt>原始链接</dt>
+                        <dd><a href="{{ case.doc_id }}" target="_blank" rel="noopener">{{ case.doc_id }}</a></dd>
+                        
+                        <dt>法律依据</dt>
+                        <dd itemprop="citation">{{ case.legal_basis }}</dd>
+                    </dl>
+                </section>
+                
+                <section class="case-content">
+                    <h2>判决书全文</h2>
+                    <div class="full_text" itemprop="text">{{ case.full_text }}</div>
+                </section>
+            </article>
         </main>
         <footer>
             <p>
